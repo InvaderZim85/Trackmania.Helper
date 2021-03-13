@@ -1,0 +1,326 @@
+﻿<mah:MetroWindow
+    x:Class="Trackmania.Helper.Ui.View.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:global="clr-namespace:Trackmania.Helper.Global"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:Trackmania.Helper.Ui.View"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModel="clr-namespace:Trackmania.Helper.Ui.ViewModel"
+    Title="Trackmania.Helper"
+    MinWidth="1200"
+    MinHeight="700"
+    d:DesignHeight="700"
+    d:DesignWidth="1200"
+    mah:DialogParticipation.Register="{Binding}"
+    BorderBrush="{StaticResource MahApps.Brushes.Accent}"
+    BorderThickness="1"
+    Loaded="MainWindow_OnLoaded"
+    ResizeMode="CanResizeWithGrip"
+    TitleCharacterCasing="Normal"
+    WindowStartupLocation="CenterScreen"
+    WindowState="Maximized"
+    mc:Ignorable="d">
+
+    <Window.DataContext>
+        <viewModel:MainWindowViewModel />
+    </Window.DataContext>
+
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button ToolTip="Shows information about the program">
+                <iconPacks:PackIconPixelartIcons Kind="InfoBox" />
+            </Button>
+            <Button Command="{Binding ConfigCommand}" ToolTip="Shows the configurations">
+                <iconPacks:PackIconPixelartIcons Kind="Sliders" />
+            </Button>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
+
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <mah:Flyout
+                Width="500"
+                Header="Settings"
+                IsOpen="{Binding ConfigOpen}"
+                Position="Right">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!--  Directories  -->
+                    <GroupBox
+                        Grid.Row="0"
+                        Margin="3"
+                        Header="Directories">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="135" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Trackmania:" />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="{Binding Config.TrackmaniaDir}" />
+                            <Button
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Width="50"
+                                Command="{Binding BrowseTrackmaniaDirCommand}"
+                                Content="..." />
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox
+                        Grid.Row="1"
+                        Margin="3"
+                        Header="Extensions">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="135" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Item:" />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="{Binding Config.ExtensionItem}" />
+
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Block:" />
+                            <TextBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Text="{Binding Config.ExtensionBlock}" />
+
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Map:" />
+                            <TextBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Text="{Binding Config.ExtensionMap}" />
+
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Replay:" />
+                            <TextBox
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Text="{Binding Config.ExtensionReplay}" />
+
+                            <Label
+                                Grid.Row="4"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Screenshot:" />
+                            <TextBox
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Text="{Binding Config.ExtensionScreenshot}" />
+                        </Grid>
+                    </GroupBox>
+
+                    <!--  Urls  -->
+                    <GroupBox
+                        Grid.Row="2"
+                        Margin="3"
+                        Header="Urls">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="135" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Trackmania Exchange:" />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="{Binding Config.UrlTrackmaniaExchange}" />
+
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Item Exchange:" />
+                            <TextBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Text="{Binding Config.UrlItemExchange}" />
+
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Trackmania News:" />
+                            <TextBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Text="{Binding Config.UrlTrackmaniaNews}" />
+
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Mania Portal:" />
+                            <TextBox
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Text="{Binding Config.UrlManiaPortal}" />
+
+                            <Label
+                                Grid.Row="4"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Account Portal:" />
+                            <TextBox
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Text="{Binding Config.UrlAccountPortal}" />
+
+                            <Label
+                                Grid.Row="5"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Official page (Ubisoft):" />
+                            <TextBox
+                                Grid.Row="5"
+                                Grid.Column="1"
+                                Text="{Binding Config.UrlOfficialPage}" />
+
+                            <Label
+                                Grid.Row="6"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Official forum (Ubisoft):" />
+                            <TextBox
+                                Grid.Row="6"
+                                Grid.Column="1"
+                                Text="{Binding Config.UrlOfficialForum}" />
+                        </Grid>
+                    </GroupBox>
+
+                    <Separator Grid.Row="3" />
+
+                    <StackPanel
+                        Grid.Row="4"
+                        FlowDirection="RightToLeft"
+                        Orientation="Horizontal">
+                        <Button
+                            Width="75"
+                            Command="{Binding SaveConfigCommand}"
+                            Content="Save" />
+                    </StackPanel>
+                </Grid>
+            </mah:Flyout>
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+
+    <DockPanel LastChildFill="True">
+        <!--  Main menu  -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Program">
+                <MenuItem Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="Online">
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="{x:Static global:UrlType.TrackmaniaExchange}"
+                    Header="Trackmania Exchange" />
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="{x:Static global:UrlType.ItemExchange}"
+                    Header="Item Exchange" />
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="{x:Static global:UrlType.TrackmaniaNews}"
+                    Header="Trackmania News" />
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="{x:Static global:UrlType.ManiaPortal}"
+                    Header="Mania Portal" />
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="{x:Static global:UrlType.AccountPortal}"
+                    Header="Account Portal" />
+                <Separator />
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="{x:Static global:UrlType.OfficialPage}"
+                    Header="Official page (Ubisoft)" />
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="{x:Static global:UrlType.OfficialForum}"
+                    Header="Official forum (Ubisoft)" />
+            </MenuItem>
+        </Menu>
+
+        <!--  Status panel  -->
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem Content="{Binding BuildInformation}" />
+        </StatusBar>
+
+        <!--  Grid  -->
+        <TabControl TabStripPlacement="Top">
+            <TabItem Header="Maps" />
+            <TabItem Header="Replays" />
+            <TabItem Header="Items">
+                <local:DirectoryContentControl ContentList="{Binding ListItem}" />
+            </TabItem>
+            <TabItem Header="Blocks" />
+            <TabItem Header="Screenshots" />
+        </TabControl>
+    </DockPanel>
+</mah:MetroWindow>
