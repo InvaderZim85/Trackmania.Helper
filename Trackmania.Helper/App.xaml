@@ -23,6 +23,15 @@
                 <Setter Property="VerticalAlignment" Value="Center" />
             </Style>
 
+            <Style
+                x:Key="ListItemStyle"
+                BasedOn="{StaticResource MahApps.Styles.Label}"
+                TargetType="{x:Type Label}">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="FontWeight" Value="DemiBold" />
+            </Style>
+
             <Style x:Key="BorderStyle" TargetType="{x:Type Border}">
                 <Setter Property="Margin" Value="3" />
                 <Setter Property="BorderBrush" Value="{StaticResource MahApps.Brushes.Accent}" />
@@ -34,6 +43,17 @@
             </Style>
 
             <Style BasedOn="{StaticResource MahApps.Styles.TextBox}" TargetType="{x:Type TextBox}">
+                <Setter Property="Margin" Value="3" />
+            </Style>
+
+            <Style TargetType="{x:Type GridSplitter}">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Width" Value="2" />
+                <Setter Property="ShowsPreview" Value="True" />
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+
+            <Style BasedOn="{StaticResource MahApps.Styles.CheckBox}" TargetType="{x:Type CheckBox}">
                 <Setter Property="Margin" Value="3" />
             </Style>
         </ResourceDictionary>

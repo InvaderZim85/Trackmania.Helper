@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ManiaPlanetSharp.GameBox;
+using ManiaPlanetSharp.GameBox.MetadataProviders;
 using Trackmania.Helper.Business;
 using Trackmania.Helper.DataObjects;
 using Trackmania.Helper.Global;
@@ -61,31 +63,173 @@ namespace Trackmania.Helper.Ui.ViewModel
         #region Lists
 
         /// <summary>
-        /// Backing field for <see cref="ListItem"/>
+        /// Backing field for <see cref="ItemList"/>
         /// </summary>
-        private ObservableCollection<FileEntry> _listItem;
+        private ObservableCollection<FileEntry> _itemList;
 
         /// <summary>
         /// Gets or sets the list with the items
         /// </summary>
-        public ObservableCollection<FileEntry> ListItem
+        public ObservableCollection<FileEntry> ItemList
         {
-            get => _listItem;
-            set => SetField(ref _listItem, value);
+            get => _itemList;
+            set => SetField(ref _itemList, value);
         }
 
         /// <summary>
-        /// Backing field for <see cref="ListBlock"/>
+        /// Backing field for <see cref="SelectedItemEntry"/>
         /// </summary>
-        private ObservableCollection<FileEntry> _listBlock;
+        private FileEntry _selectedItemEntry;
+
+        /// <summary>
+        /// Gets or sets the item entry
+        /// </summary>
+        public FileEntry SelectedItemEntry
+        {
+            get => _selectedItemEntry;
+            set
+            {
+                SetField(ref _selectedItemEntry, value);
+                if (value == null || value.IsDirectory)
+                {
+                    ItemData = null;
+                    return;
+                }
+
+                var gbx = FileController.GetFileInformation(value);
+                if (gbx.MainClass == ClassId.CGameItemModel)
+                {
+                    ItemData = new ItemBlockModel(new ItemMetadataProvider(gbx));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="ItemData"/>
+        /// </summary>
+        private ItemBlockModel _itemData;
+
+        /// <summary>
+        /// Gets or sets the item data
+        /// </summary>
+        public ItemBlockModel ItemData
+        {
+            get => _itemData;
+            set => SetField(ref _itemData, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="BlockList"/>
+        /// </summary>
+        private ObservableCollection<FileEntry> _blockList;
 
         /// <summary>
         /// Gets or sets the list with the blocks
         /// </summary>
-        public ObservableCollection<FileEntry> ListBlock
+        public ObservableCollection<FileEntry> BlockList
         {
-            get => _listBlock;
-            set => SetField(ref _listBlock, value);
+            get => _blockList;
+            set => SetField(ref _blockList, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="SelectedBlockEntry"/>
+        /// </summary>
+        private FileEntry _selectedBlockEntry;
+
+        /// <summary>
+        /// Gets or sets the item entry
+        /// </summary>
+        public FileEntry SelectedBlockEntry
+        {
+            get => _selectedBlockEntry;
+            set
+            {
+                SetField(ref _selectedBlockEntry, value);
+                if (value == null || value.IsDirectory)
+                {
+                    ItemData = null;
+                    return;
+                }
+
+                var gbx = FileController.GetFileInformation(value);
+                BlockData = gbx.MainClass switch
+                {
+                    ClassId.CGameItemModel => new ItemBlockModel(new ItemMetadataProvider(gbx)),
+                    ClassId.CGameCtnMacroBlockInfo => new ItemBlockModel(new MacroblockMetadataProvider(gbx)),
+                    _ => BlockData
+                };
+            }
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="BlockData"/>
+        /// </summary>
+        private ItemBlockModel _blockDate;
+
+        /// <summary>
+        /// Gets or sets the item data
+        /// </summary>
+        public ItemBlockModel BlockData
+        {
+            get => _blockDate;
+            set => SetField(ref _blockDate, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="MapList"/>
+        /// </summary>
+        private ObservableCollection<FileEntry> _mapList;
+
+        /// <summary>
+        /// Gets or sets the list with the maps
+        /// </summary>
+        public ObservableCollection<FileEntry> MapList
+        {
+            get => _mapList;
+            set => SetField(ref _mapList, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="SelectedMap"/>
+        /// </summary>
+        private FileEntry _selectedMap;
+
+        /// <summary>
+        /// Gets or sets the selected map
+        /// </summary>
+        public FileEntry SelectedMap
+        {
+            get => _selectedMap;
+            set
+            {
+                SetField(ref _selectedMap, value);
+                if (value == null || value.IsDirectory)
+                {
+                    MapData = null;
+                    return;
+                }
+
+                var gbx = FileController.GetFileInformation(value);
+                if (gbx.MainClass == ClassId.CGameCtnChallenge)
+                {
+                    MapData = new MapModel(new MapMetadataProvider(gbx));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="MapData"/>
+        /// </summary>
+        private MapModel _mapData;
+
+        /// <summary>
+        /// Gets or sets the data of the map
+        /// </summary>
+        public MapModel MapData
+        {
+            get => _mapData;
+            set => SetField(ref _mapData, value);
         }
         #endregion
         /// <summary>
@@ -132,11 +276,27 @@ namespace Trackmania.Helper.Ui.ViewModel
 
             try
             {
+                // Items
+                controller.SetMessage("Load items...");
                 var itemList = await Task.Run(() =>
                     FileController.LoadDirectoryContent(Helper.Configuration.TrackmaniaDir,
                         Helper.FileType.Item));
 
-                ListItem = new ObservableCollection<FileEntry>(itemList);
+                ItemList = new ObservableCollection<FileEntry>(itemList);
+
+                // Blocks
+                controller.SetMessage("Load blocks...");
+                var blockList = await Task.Run(() =>
+                    FileController.LoadDirectoryContent(Helper.Configuration.TrackmaniaDir, Helper.FileType.Block));
+
+                BlockList = new ObservableCollection<FileEntry>(blockList);
+
+                // Maps
+                controller.SetMessage("Load maps..");
+                var maps = await Task.Run(() =>
+                    FileController.LoadDirectoryContent(Helper.Configuration.TrackmaniaDir, Helper.FileType.Map));
+
+                MapList = new ObservableCollection<FileEntry>(maps);
             }
             catch (Exception ex)
             {

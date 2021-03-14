@@ -24,9 +24,11 @@
         <Separator Grid.Row="1" />
 
         <TreeView
+            Name="ItemTreeView"
             Grid.Row="2"
             Margin="3"
-            ItemsSource="{Binding ElementName=DirContentControl, Path=ContentList}">
+            ItemsSource="{Binding ElementName=DirContentControl, Path=ContentList}"
+            SelectedItemChanged="TreeView_OnSelectedItemChanged">
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type dataObjects:FileEntry}" ItemsSource="{Binding SubNodes}">
                     <Grid>
@@ -45,7 +47,11 @@
                             </Style>
                         </Grid.Resources>
 
-                        <iconPacks:PackIconPixelartIcons Grid.Column="0" Kind="{Binding Kind}" />
+                        <iconPacks:PackIconPixelartIcons
+                            Grid.Column="0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Kind="{Binding Kind}" />
 
                         <TextBlock
                             Grid.Column="1"

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ManiaPlanetSharp.GameBox;
+using Serilog;
 using Trackmania.Helper.DataObjects;
 
 namespace Trackmania.Helper.Business
@@ -29,7 +31,7 @@ namespace Trackmania.Helper.Business
             if (!Directory.Exists(path))
                 throw new FileNotFoundException("The specified directory doesn't exist.", path);
 
-            var extension = GetExtension(type);
+            var searchPatterns = GetSearchPatterns(type);
             var result = new List<FileEntry>();
             void AddSubDirs(FileEntry node, DirectoryInfo dir)
             {
@@ -42,7 +44,7 @@ namespace Trackmania.Helper.Business
                 }
 
                 // Add the files
-                foreach (var file in dir.GetFiles(extension, SearchOption.TopDirectoryOnly))
+                foreach (var file in dir.GetFiles(searchPatterns, SearchOption.TopDirectoryOnly))
                 {
                     var fileNode = new FileEntry(file);
 
@@ -63,27 +65,44 @@ namespace Trackmania.Helper.Business
             }
 
             // Get all files
-            result.AddRange(rootDir.GetFiles(extension, SearchOption.TopDirectoryOnly).Select(file => new FileEntry(file)));
+            result.AddRange(rootDir.GetFiles(searchPatterns, SearchOption.TopDirectoryOnly).Select(file => new FileEntry(file)));
 
             return result;
         }
 
         /// <summary>
-        /// Gets the extension based on the specified <see cref="Helper.FileType"/>
+        /// Gets the search patterns based on the specified <see cref="Helper.FileType"/>
         /// </summary>
         /// <param name="type">The type</param>
-        /// <returns>The extension</returns>
-        private static string GetExtension(Helper.FileType type)
+        /// <returns>The search patterns</returns>
+        private static IReadOnlyCollection<string> GetSearchPatterns(Helper.FileType type)
         {
-            return type switch
+            var result = new List<string>();
+
+            switch (type)
             {
-                Helper.FileType.Item => Helper.Configuration.ExtensionItem,
-                Helper.FileType.Block => Helper.Configuration.ExtensionBlock,
-                Helper.FileType.Map => Helper.Configuration.ExtensionMap,
-                Helper.FileType.Replay => Helper.Configuration.ExtensionReplay,
-                Helper.FileType.Screenshot => Helper.Configuration.ExtensionScreenshot,
-                _ => "*.*"
-            };
+                case Helper.FileType.Item:
+                    result.Add(Helper.Configuration.ExtensionItem);
+                    break;
+                case Helper.FileType.Block:
+                    result.Add(Helper.Configuration.ExtensionBlock);
+                    result.Add(Helper.Configuration.ExtensionMacroBlock);
+                    break;
+                case Helper.FileType.Map:
+                    result.Add(Helper.Configuration.ExtensionMap);
+                    break;
+                case Helper.FileType.Replay:
+                    result.Add(Helper.Configuration.ExtensionReplay);
+                    break;
+                case Helper.FileType.Screenshot:
+                    result.Add(Helper.Configuration.ExtensionScreenshot);
+                    break;
+                default:
+                    result.Add("*.*");
+                    break;
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -103,6 +122,28 @@ namespace Trackmania.Helper.Business
                 Helper.FileType.Screenshot => Path.Combine(mainPath, "ScreenShots"),
                 _ => ""
             };
+        }
+
+        /// <summary>
+        /// Gets the file information from a GBX file
+        /// </summary>
+        /// <param name="file">The file from which the information is to be determined</param>
+        /// <returns>The file information</returns>
+        public static GameBoxFile GetFileInformation(FileEntry file)
+        {
+            // Check if the file is null / a directory / not a gbx file
+            if (file == null || file.IsDirectory || !file.FileInfo.Extension.ContainsIgnoreCase("gbx"))
+                return null;
+
+            try
+            {
+                return GameBoxFile.Parse(file.FileInfo.FullName);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"An error has occurred while parsing the GBX file. File: '{file.FileInfo.FullName}'");
+                return null;
+            }
         }
     }
 }

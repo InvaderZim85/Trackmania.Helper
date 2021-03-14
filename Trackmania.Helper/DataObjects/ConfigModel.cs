@@ -74,6 +74,11 @@ namespace Trackmania.Helper.DataObjects
         public string ExtensionBlock { get; set; } = "*.Block.Gbx";
 
         /// <summary>
+        /// Gets or sets the extension of a macroblock
+        /// </summary>
+        public string ExtensionMacroBlock { get; set; } = "*.Macroblock.Gbx";
+
+        /// <summary>
         /// Gets or sets the extension of a map
         /// </summary>
         public string ExtensionMap { get; set; } = "*.Map.Gbx";

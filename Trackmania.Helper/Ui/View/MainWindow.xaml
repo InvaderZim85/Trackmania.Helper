@@ -10,10 +10,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModel="clr-namespace:Trackmania.Helper.Ui.ViewModel"
     Title="Trackmania.Helper"
-    MinWidth="1200"
-    MinHeight="700"
-    d:DesignHeight="700"
-    d:DesignWidth="1200"
+    Width="720"
+    Height="1080"
+    MinWidth="1080"
+    MinHeight="720"
     mah:DialogParticipation.Register="{Binding}"
     BorderBrush="{StaticResource MahApps.Brushes.Accent}"
     BorderThickness="1"
@@ -21,7 +21,6 @@
     ResizeMode="CanResizeWithGrip"
     TitleCharacterCasing="Normal"
     WindowStartupLocation="CenterScreen"
-    WindowState="Maximized"
     mc:Ignorable="d">
 
     <Window.DataContext>
@@ -39,11 +38,12 @@
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
 
+    <!--  Settings flyout  -->
     <mah:MetroWindow.Flyouts>
         <mah:FlyoutsControl>
             <mah:Flyout
                 Width="500"
-                Header="Settings"
+                Header="Configuration"
                 IsOpen="{Binding ConfigOpen}"
                 Position="Right">
                 <Grid>
@@ -89,12 +89,14 @@
                         </Grid>
                     </GroupBox>
 
+                    <!--  Extensions  -->
                     <GroupBox
                         Grid.Row="1"
                         Margin="3"
                         Header="Extensions">
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -131,29 +133,39 @@
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 HorizontalAlignment="Right"
-                                Content="Map:" />
+                                Content="Macroblock:" />
                             <TextBox
                                 Grid.Row="2"
+                                Grid.Column="1"
+                                Text="{Binding Config.ExtensionMacroBlock}" />
+
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                Content="Map:" />
+                            <TextBox
+                                Grid.Row="3"
                                 Grid.Column="1"
                                 Text="{Binding Config.ExtensionMap}" />
 
                             <Label
-                                Grid.Row="3"
+                                Grid.Row="4"
                                 Grid.Column="0"
                                 HorizontalAlignment="Right"
                                 Content="Replay:" />
                             <TextBox
-                                Grid.Row="3"
+                                Grid.Row="4"
                                 Grid.Column="1"
                                 Text="{Binding Config.ExtensionReplay}" />
 
                             <Label
-                                Grid.Row="4"
+                                Grid.Row="5"
                                 Grid.Column="0"
                                 HorizontalAlignment="Right"
                                 Content="Screenshot:" />
                             <TextBox
-                                Grid.Row="4"
+                                Grid.Row="5"
                                 Grid.Column="1"
                                 Text="{Binding Config.ExtensionScreenshot}" />
                         </Grid>
@@ -314,12 +326,61 @@
 
         <!--  Grid  -->
         <TabControl TabStripPlacement="Top">
-            <TabItem Header="Maps" />
+            <TabItem Header="Maps">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <local:DirectoryContentControl
+                        Grid.Column="0"
+                        ContentList="{Binding MapList}"
+                        SelectedEntry="{Binding SelectedMap, Mode=TwoWay}" />
+
+                    <GridSplitter Grid.Column="1" />
+
+                    <local:MapControl Grid.Column="2" MapData="{Binding MapData}" />
+                </Grid>
+            </TabItem>
             <TabItem Header="Replays" />
             <TabItem Header="Items">
-                <local:DirectoryContentControl ContentList="{Binding ListItem}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <local:DirectoryContentControl
+                        Grid.Column="0"
+                        ContentList="{Binding ItemList}"
+                        SelectedEntry="{Binding SelectedItemEntry, Mode=TwoWay}" />
+
+                    <GridSplitter Grid.Column="1" />
+
+                    <local:ItemBlockControl Grid.Column="2" ItemBlockData="{Binding ItemData}" />
+                </Grid>
             </TabItem>
-            <TabItem Header="Blocks" />
+            <TabItem Header="Blocks">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <local:DirectoryContentControl
+                        Grid.Column="0"
+                        ContentList="{Binding BlockList}"
+                        SelectedEntry="{Binding SelectedBlockEntry, Mode=TwoWay}" />
+
+                    <GridSplitter Grid.Column="1" />
+
+                    <local:ItemBlockControl Grid.Column="2" ItemBlockData="{Binding BlockData}" />
+                </Grid>
+            </TabItem>
             <TabItem Header="Screenshots" />
         </TabControl>
     </DockPanel>

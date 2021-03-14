@@ -1,12 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Windows.Documents;
+using ManiaPlanetSharp.GameBox.MetadataProviders;
 using Newtonsoft.Json;
 using Serilog;
 using Trackmania.Helper.DataObjects;
 using Trackmania.Helper.Global;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace Trackmania.Helper
 {
@@ -280,19 +289,121 @@ namespace Trackmania.Helper
         /// <returns>The readable size</returns>
         public static string ToFormattedFileSize(this long length)
         {
-            switch (length)
+            return length switch
             {
-                case var _ when length < 1024:
-                    return "1 KB";
-                case var _ when length >= 1024 && length < Math.Pow(1024, 2):
-                    return $"{length / 1024d:N2} KB";
-                case var _ when length >= Math.Pow(1024, 2) && length < Math.Pow(1024, 3):
-                    return $"{length / Math.Pow(1024, 2):N2} MB";
-                case var _ when length >= Math.Pow(1024, 3):
-                    return $"{length / Math.Pow(1024, 2):N2} GB";
+                _ when length < 1024 => "1 KB",
+                _ when length >= 1024 && length < Math.Pow(1024, 2) => $"{length / 1024d:N2} KB",
+                _ when length >= Math.Pow(1024, 2) && length < Math.Pow(1024, 3) =>
+                    $"{length / Math.Pow(1024, 2):N2} MB",
+                _ when length >= Math.Pow(1024, 3) => $"{length / Math.Pow(1024, 2):N2} GB",
+                _ => ""
+            };
+        }
+
+        /// <summary>
+        /// Gets the default image
+        /// </summary>
+        /// <returns>The default image</returns>
+        private static ImageSource GetDefaultImage()
+        {
+            return ConvertImageToImageSource(Properties.Resources.NoIcon);
+        }
+
+        /// <summary>
+        /// Converts the bytes into an image source
+        /// </summary>
+        /// <param name="bytes">The bytes</param>
+        /// <returns>The image source</returns>
+        public static ImageSource ToMapImage(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0)
+                return GetDefaultImage();
+
+            try
+            {
+                using var memStream = new MemoryStream(bytes);
+                using var image = (Bitmap)Image.FromStream(memStream);
+                image.RotateFlip(RotateFlipType.Rotate180FlipX);
+                var tmpImage = image.Clone(new Rectangle(0, 0, image.Width, image.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                return ConvertImageToImageSource(tmpImage);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error has occurred while converting the map image");
+                return GetDefaultImage();
+            }
+        }
+
+        /// <summary>
+        /// Converts the bytes of the given item into an image source
+        /// </summary>
+        /// <param name="item">The item provider</param>
+        /// <returns>The image source</returns>
+        public static ImageSource ToItemBlockImage(this CollectorMetadataProvider item)
+        {
+            if (item.IconData == null || item.IconSize == null)
+                return GetDefaultImage();
+
+            try
+            {
+                using var bmp = new Bitmap(item.IconSize.Value.Width, item.IconSize.Value.Height,
+                    PixelFormat.Format32bppArgb);
+                var data = bmp.LockBits(new Rectangle(0, 0, item.IconSize.Value.Width, item.IconSize.Value.Height),
+                    ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                Marshal.Copy(item.IconData, 0, data.Scan0, item.IconData.Length);
+                bmp.UnlockBits(data);
+                bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                var tmpBmp = bmp.Clone(new Rectangle(0, 0, bmp.Width, bmp.Height), PixelFormat.Format32bppArgb);
+                return ConvertImageToImageSource(tmpBmp);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error has occurred while converting the item / block image");
+                return GetDefaultImage();
+            }
+        }
+
+        /// <summary>
+        /// Converts the given image to an image source
+        /// </summary>
+        /// <param name="source">The image which should be converted</param>
+        /// <returns>The image source</returns>
+        private static ImageSource ConvertImageToImageSource(Image source)
+        {
+            if (source == null)
+                return null;
+
+            using var ms = new MemoryStream();
+            source.Save(ms, ImageFormat.Png);
+            ms.Position = 0;
+
+            var bi = new BitmapImage();
+            bi.BeginInit();
+            bi.CacheOption = BitmapCacheOption.OnLoad;
+            bi.StreamSource = ms;
+            bi.EndInit();
+
+            return bi;
+        }
+
+        /// <summary>
+        /// Returns a file list from the current directory matching the given search pattern and using a value to determine whether to search subdirectories.
+        /// </summary>
+        /// <param name="dir">The directory</param>
+        /// <param name="searchPatterns">The search patterns</param>
+        /// <param name="searchOption">The search options</param>
+        /// <returns>The list with the files</returns>
+        public static List<FileInfo> GetFiles(this DirectoryInfo dir, IEnumerable<string> searchPatterns, SearchOption searchOption)
+        {
+            var result = new List<FileInfo>();
+
+            foreach (var searchPattern in searchPatterns)
+            {
+                result.AddRange(dir.GetFiles(searchPattern, searchOption));
             }
 
-            return "";
+            return result;
         }
         #endregion
     }
